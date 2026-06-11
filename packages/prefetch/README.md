@@ -6,7 +6,7 @@ Astro's built-in prefetch only emits browser hints (`<link rel="prefetch">`, spe
 
 - **Cache** — entry state machine (`pending → fulfilled | rejected`), per-entry TTL, byte-budget LRU.
 - **Scheduler** — Intent > Default > Background priority queue, in-flight dedup, concurrency caps (4/12, Next.js's values).
-- **Triggers** — Astro's `tap` / `hover` / `viewport` / `load` strategies (full `data-astro-prefetch` compatibility) plus **`proximity`**: project the cursor's velocity `lookaheadMs` ahead and prefetch the link it's heading toward. Links rendered after page load (islands, mega menus) are picked up via mutation observation.
+- **Triggers** — Astro's `tap` / `hover` / `viewport` strategies (`data-astro-prefetch` compatible; `load` is not supported) plus **`proximity`**: project the cursor's velocity `lookaheadMs` ahead and prefetch the link it's heading toward. Links rendered after page load (islands, mega menus) are picked up via mutation observation.
 - **Navigation** — `astro:before-preparation` loader override: fresh hit swaps with **zero network**; a click during an in-flight prefetch **awaits that same request** (never two); misses populate the cache so back/forward becomes a hit. Every failure path falls back to Astro's default loader.
 
 ## Install
@@ -31,7 +31,7 @@ Requires `<ClientRouter />` from `astro:transitions` on every page. The built-in
 
 ```js
 prefetch({
-  defaultStrategy: "proximity", // tap | hover | viewport | load | proximity
+  defaultStrategy: "proximity", // tap | hover | viewport | proximity
   prefetchAll: true,            // links without data-astro-prefetch participate
   proximity: {                  // or false to disable the predictor
     lookaheadMs: 150,           // how far ahead to project the cursor — the "how early" dial
@@ -47,7 +47,7 @@ prefetch({
 });
 ```
 
-Per-link `data-astro-prefetch="tap|hover|viewport|load|proximity|false"` always overrides `defaultStrategy`.
+Per-link `data-astro-prefetch="tap|hover|viewport|proximity|false"` always overrides `defaultStrategy`. Astro's `load` value is not supported — links carrying it are not prefetched.
 
 ### `debug`
 

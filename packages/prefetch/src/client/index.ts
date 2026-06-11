@@ -41,7 +41,7 @@ export type PrefetchOptions = {
    * Strategy for links without a data-astro-prefetch value.
    * Default "proximity": cursor-trajectory prediction (plus tap on touch)
    * is the prefetch trigger. Per-link data-astro-prefetch attributes
-   * (tap/hover/viewport/load/proximity/false) always override.
+   * (tap/hover/viewport/proximity/false) always override.
    */
   defaultStrategy?: Strategy;
   /** Prefetch links without a data-astro-prefetch attribute. Default true. */

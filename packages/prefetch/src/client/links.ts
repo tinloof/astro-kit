@@ -1,6 +1,6 @@
 /**
  * Link observation: a port of Astro's built-in prefetch triggers
- * (tap/hover/viewport/load strategies and `data-astro-prefetch` semantics)
+ * (tap/hover/viewport strategies and `data-astro-prefetch` semantics)
  * routed into our scheduler instead of browser hints, plus a "proximity"
  * strategy (see proximity.ts) and Next.js's intent upgrade: hovering or
  * touching any prefetchable link schedules it at Intent priority.
@@ -16,7 +16,7 @@
 
 import { isSlowConnection, Priority, schedule } from "./scheduler.js";
 
-export type Strategy = "tap" | "hover" | "viewport" | "load" | "proximity";
+export type Strategy = "tap" | "hover" | "viewport" | "proximity";
 
 export type LinkOptions = {
   defaultStrategy: Strategy;
@@ -34,7 +34,6 @@ export function initLinks(options: LinkOptions): void {
   initTapStrategy();
   initHoverStrategy();
   initViewportStrategy();
-  initLoadStrategy();
 }
 
 /**
@@ -83,11 +82,12 @@ function strategyOf(el: EventTarget | Element | null): Strategy | null {
     attrValue === "tap" ||
     attrValue === "hover" ||
     attrValue === "viewport" ||
-    attrValue === "load" ||
     attrValue === "proximity"
   ) {
     return attrValue;
   }
+  // Unknown values (including Astro's "load", which this package does not
+  // support) are not prefetched.
   return null;
 }
 
@@ -234,16 +234,6 @@ function createViewportIntersectionObserver(): IntersectionObserver {
       } else if (timeout) {
         clearTimeout(timeout);
         timeouts.delete(anchor);
-      }
-    }
-  });
-}
-
-function initLoadStrategy(): void {
-  onPageLoad(() => {
-    for (const anchor of document.getElementsByTagName("a")) {
-      if (strategyOf(anchor) === "load") {
-        schedule(anchor.href, Priority.Background);
       }
     }
   });

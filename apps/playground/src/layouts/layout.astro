@@ -40,7 +40,6 @@ const { title = "@tinloof/astro-prefetch playground" } = Astro.props;
             <option value="hover">hover</option>
             <option value="viewport">viewport</option>
             <option value="tap">tap</option>
-            <option value="load">load</option>
           </select>
         </label>
         <label class="pf-row pf-check">
@@ -92,7 +91,7 @@ const { title = "@tinloof/astro-prefetch playground" } = Astro.props;
       const STORAGE_KEY = "playground-prefetch";
 
       type PanelState = {
-        defaultStrategy: "tap" | "hover" | "viewport" | "load" | "proximity";
+        defaultStrategy: "tap" | "hover" | "viewport" | "proximity";
         proximityEnabled: boolean;
         lookaheadMs: number;
         radiusPx: number;
@@ -368,7 +367,7 @@ const { title = "@tinloof/astro-prefetch playground" } = Astro.props;
   .pf-panel {
     position: fixed;
     bottom: 1rem;
-    right: 1rem;
+    left: 1rem;
     z-index: 9999;
     width: 16.5rem;
     border: 1px solid var(--border);
@@ -466,13 +465,5 @@ const { title = "@tinloof/astro-prefetch playground" } = Astro.props;
   .pf-note code {
     font-family: var(--font-mono);
     font-size: 10px;
-  }
-
-  /* The package renders its hit/miss badge fixed bottom-right (inline
-     styles, hence !important) — same corner as the panel now. Move it to
-     the top-right so both stay visible. */
-  #astro-prefetch-badge {
-    bottom: auto !important;
-    top: 1rem !important;
   }
 </style>
