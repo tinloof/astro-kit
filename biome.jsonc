@@ -1,6 +1,6 @@
 {
   "$schema": "./node_modules/@biomejs/biome/configuration_schema.json",
-  "extends": ["ultracite/core", "ultracite/react", "ultracite/astro"],
+  "extends": ["ultracite/core", "ultracite/react"],
   "linter": {
     "rules": {
       "a11y": {
@@ -27,6 +27,9 @@
     }
   },
   "files": {
-    "includes": ["!**/dist", "!**/.astro"]
+    // *.astro excluded entirely (no lint, no format): biome's astro support
+    // parses only the frontmatter and strips imports that are used solely
+    // in the template.
+    "includes": ["!**/dist", "!**/.astro", "!**/*.astro"]
   }
 }
