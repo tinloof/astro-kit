@@ -41,7 +41,7 @@
     "performance"
   ],
   "peerDependencies": {
-    "astro": "^6.0.0"
+    "astro": "^5.0.0 || ^6.0.0"
   },
   "devDependencies": {
     "astro": "^6.0.0",

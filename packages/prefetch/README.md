@@ -97,5 +97,5 @@ The playground app ([`apps/playground`](../../apps/playground)) is a working ref
 
 ## Caveats
 
-- The navigation consume path replicates internal behavior of astro 6.4.x's `transitions/router.js` defaultLoader (redirect replay, stylesheet preload). Re-check on major Astro upgrades; all failure paths fall back to the default loader.
+- The navigation consume path replicates internal behavior of Astro's `transitions/router.js` defaultLoader (redirect replay, stylesheet preload) — verified byte-equivalent on astro 5.18 and 6.4. Re-check on major Astro upgrades; all failure paths fall back to the default loader.
 - A view-transition swap is atomic: streamed pages are buffered before swapping (the default loader does the same). For slow streaming pages, move the slow data into `server:defer` islands — the cached shell swaps instantly and islands stream in fresh after.
