@@ -39,3 +39,6 @@ yarn-error.log*
 
 # Yarn
 .yarn/install-state.gz
+
+# wrangler local state
+.wrangler/

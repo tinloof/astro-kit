@@ -1,0 +1,55 @@
+---
+import { PRODUCTS } from "../../data/products";
+import Layout from "../../layouts/layout.astro";
+
+const id = Number(Astro.params.id);
+// Fallback instead of a redirect: biome can't parse top-level returns in
+// frontmatter, and for a playground any id deserves a page anyway.
+const product = PRODUCTS.find((p) => p.id === id) ?? PRODUCTS[0];
+
+// Simulated upstream call: makes the difference between a cache hit
+// (instant) and a fresh render (this delay) obvious.
+await new Promise((resolve) => setTimeout(resolve, 250));
+
+const renderedAt = new Date().toLocaleTimeString("en-US", { hour12: false });
+const renderId = Math.random().toString(36).slice(2, 8);
+const others = PRODUCTS.filter((p) => p.id !== id).slice(0, 6);
+---
+
+<Layout title={`${product.name} · playground`}>
+  <main>
+    <p class="eyebrow">Product #{product.id}</p>
+    <h1>
+      {product.emoji}
+      {product.name}
+    </h1>
+    <p>{product.blurb}</p>
+    <div class="meta-card">
+      <span>rendered {renderedAt}</span>
+      <span>·</span>
+      <span>#{renderId}</span>
+      <span>·</span>
+      <span>+250ms simulated fetch</span>
+    </div>
+
+    <p>
+      Frozen timestamp after a hit = served from the in-memory cache. Wait past
+      the stale time (panel slider) and click again for a fresh render.
+    </p>
+
+    <h2>More targets</h2>
+    <div class="grid">
+      {
+        others.map((p) => (
+          <a class="card" href={`/products/${p.id}`}>
+            <span class="emoji">{p.emoji}</span>
+            <h2>{p.name}</h2>
+            <p>{p.blurb}</p>
+          </a>
+        ))
+      }
+    </div>
+
+    <a class="button" href="/">← Back to the grid</a>
+  </main>
+</Layout>

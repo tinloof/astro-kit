@@ -1,0 +1,39 @@
+---
+import { PRODUCTS } from "../data/products";
+import Layout from "../layouts/layout.astro";
+
+const renderedAt = new Date().toLocaleTimeString("en-US", { hour12: false });
+const renderId = Math.random().toString(36).slice(2, 8);
+---
+
+<Layout>
+  <main>
+    <p class="eyebrow">@tinloof/astro-prefetch</p>
+    <h1>Playground</h1>
+    <p>
+      Move the cursor toward a card and watch the Network tab: with the
+      proximity strategy the request fires while the cursor is still en route.
+      Click on arrival — the badge should report a cache hit and the timestamps
+      below stay frozen (served from memory, no server render).
+    </p>
+    <div class="meta-card">
+      <span>rendered {renderedAt}</span>
+      <span>·</span>
+      <span>#{renderId}</span>
+    </div>
+
+    <div class="grid">
+      {
+        PRODUCTS.map((product) => (
+          <a class="card" href={`/products/${product.id}`}>
+            <span class="emoji">{product.emoji}</span>
+            <h2>{product.name}</h2>
+            <p>{product.blurb}</p>
+          </a>
+        ))
+      }
+    </div>
+
+    <a class="button" href="/slow">Streaming page (server island) →</a>
+  </main>
+</Layout>

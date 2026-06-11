@@ -1,0 +1,19 @@
+{
+  "name": "playground",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "astro dev",
+    "build": "astro build",
+    "preview": "astro build && astro preview",
+    "deploy": "astro build && wrangler deploy"
+  },
+  "dependencies": {
+    "@astrojs/cloudflare": "^13.7.0",
+    "@tinloof/astro-prefetch": "workspace:*",
+    "astro": "^6.0.0"
+  },
+  "devDependencies": {
+    "wrangler": "^4.99.0"
+  }
+}

@@ -1,0 +1,53 @@
+{
+  "name": "@tinloof/astro-prefetch",
+  "version": "0.1.0",
+  "description": "Next.js-style prefetching for Astro's ClientRouter: in-memory cache, cursor-trajectory (proximity) prediction, and instant navigations.",
+  "license": "MIT",
+  "author": "Tinloof (https://tinloof.com)",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/tinloof/astro-kit.git",
+    "directory": "packages/prefetch"
+  },
+  "type": "module",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    },
+    "./client": {
+      "types": "./dist/client/index.d.ts",
+      "import": "./dist/client/index.js"
+    },
+    "./package.json": "./package.json"
+  },
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsc --watch",
+    "typecheck": "tsc --noEmit"
+  },
+  "keywords": [
+    "astro",
+    "astro-integration",
+    "withastro",
+    "prefetch",
+    "view-transitions",
+    "client-router",
+    "performance"
+  ],
+  "peerDependencies": {
+    "astro": "^6.0.0"
+  },
+  "devDependencies": {
+    "astro": "^6.0.0",
+    "typescript": "^5.6.2"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}
