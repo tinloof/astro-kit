@@ -137,19 +137,28 @@ function initHoverStrategy(): void {
     }
   }
 
-  // Hover/focus is an intent signal for every strategy except tap-only links
-  // and proximity links — proximity-only mode means the trajectory (or a tap)
-  // is the sole trigger, so hover must not prefetch behind its back.
+  // Hover is an intent signal for every strategy except tap-only links and
+  // proximity links — proximity-only mode means the trajectory (or a tap)
+  // is the sole pointer trigger, so hover must not prefetch behind its back.
   const hoverable = (el: EventTarget | Element | null) => {
     const strategy = strategyOf(el);
     return strategy !== null && strategy !== "tap" && strategy !== "proximity";
+  };
+
+  // Focus is different: keyboard navigation has no cursor trajectory, so a
+  // focused link is the strongest signal we get — prefetch for every
+  // strategy INCLUDING proximity. Only tap-only links are excluded (links
+  // degrade to tap on slow connections, which keeps conserving data).
+  const focusable = (el: EventTarget | Element | null) => {
+    const strategy = strategyOf(el);
+    return strategy !== null && strategy !== "tap";
   };
 
   document.body.addEventListener(
     "focusin",
     (e) => {
       const anchor = (e.target as Element | null)?.closest("a");
-      if (anchor && hoverable(anchor)) {
+      if (anchor && focusable(anchor)) {
         handleHoverIn(anchor.href);
       }
     },
