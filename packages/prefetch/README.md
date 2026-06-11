@@ -6,7 +6,7 @@ Astro's built-in prefetch only emits browser hints (`<link rel="prefetch">`, spe
 
 - **Cache** — entry state machine (`pending → fulfilled | rejected`), per-entry TTL, byte-budget LRU.
 - **Scheduler** — Intent > Default > Background priority queue, in-flight dedup, concurrency caps (4/12, Next.js's values).
-- **Triggers** — Astro's `tap` / `hover` / `viewport` strategies (`data-astro-prefetch` compatible; `load` is not supported) plus **`proximity`**: project the cursor's velocity `lookaheadMs` ahead and prefetch the link it's heading toward. Links rendered after page load (islands, mega menus) are picked up via mutation observation.
+- **Triggers** — Astro's `tap` / `hover` / `viewport` strategies (`data-astro-prefetch` compatible; `load` is not supported) plus **`proximity`**: project the cursor's velocity `lookaheadMs` ahead and prefetch the link it's heading toward. Keyboard focus prefetches for every strategy (keyboard navigation has no trajectory — focus is the intent signal). Links rendered after page load (islands, mega menus) are picked up via mutation observation.
 - **Navigation** — `astro:before-preparation` loader override: fresh hit swaps with **zero network**; a click during an in-flight prefetch **awaits that same request** (never two); misses populate the cache so back/forward becomes a hit. Every failure path falls back to Astro's default loader.
 
 ## Install
@@ -59,11 +59,32 @@ Per-link `data-astro-prefetch="tap|hover|viewport|proximity|false"` always overr
 ## Programmatic API
 
 ```js
-import { prefetch, invalidate, getEntry } from "@tinloof/astro-prefetch/client";
+import {
+  prefetch,
+  invalidate,
+  getEntry,
+  configure,
+  PROXIMITY_HIT_EVENT,
+} from "@tinloof/astro-prefetch/client";
 
 prefetch("/checkout", { priority: "intent" });
 invalidate("/cart"); // after a mutation; no argument clears everything
+getEntry("/checkout"); // inspect a URL's cache entry
+
+// Live-reconfigure any option after init — control panels, A/B tests,
+// runtime tuning. Only the keys present are applied.
+configure({
+  proximity: { lookaheadMs: 300 }, // merge-tune the predictor
+  debug: { badge: true, overlay: false }, // toggle visuals (with teardown)
+});
+configure({ proximity: false }); // pause the predictor
+
+// Fired on document for every link the predictor decides to prefetch;
+// detail carries { anchor, href }.
+document.addEventListener(PROXIMITY_HIT_EVENT, (e) => console.log(e.detail));
 ```
+
+The playground app ([`apps/playground`](../../apps/playground)) is a working reference: its control panel drives everything through `configure()`.
 
 ## Server notes
 
