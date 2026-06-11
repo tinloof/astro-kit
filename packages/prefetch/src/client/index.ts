@@ -27,12 +27,12 @@ import {
   keyFor as keyForUrl,
   purgePending,
 } from "./cache.js";
-import { initLinks, type Strategy } from "./links.js";
+import { initLinks, type Strategy, updateLinkOptions } from "./links.js";
 import { initNavigation } from "./navigation.js";
 import {
   PROXIMITY_HIT_EVENT as HIT_EVENT,
-  initProximity,
   type ProximityOptions,
+  setProximity,
 } from "./proximity.js";
 import { flushQueue, Priority, resetInFlight, schedule } from "./scheduler.js";
 
@@ -90,19 +90,10 @@ export function init(options: PrefetchOptions = {}): void {
     defaultStrategy: options.defaultStrategy ?? "proximity",
     prefetchAll: options.prefetchAll ?? true,
   });
-  if (options.proximity !== false) {
-    initProximity(options.proximity);
-  }
+  setProximity(options.proximity ?? {});
 
   if (options.debug) {
-    const badge = options.debug === true || (options.debug.badge ?? true);
-    const overlay = options.debug === true || (options.debug.overlay ?? true);
-    // Dynamic import: debug code stays out of the bundle when disabled.
-    import("./debug.js")
-      .then((m) => m.initDebug({ badge, overlay }))
-      .catch(() => {
-        // debug chunk failed to load — never break the page for visuals
-      });
+    applyDebug(options.debug);
   }
 
   window.addEventListener("pageshow", (e) => {
@@ -115,6 +106,63 @@ export function init(options: PrefetchOptions = {}): void {
     }
   });
   window.addEventListener("offline", flushQueue);
+}
+
+/**
+ * Live-reconfigure any option after init — for control panels, A/B tests,
+ * or runtime tuning. Only the keys present are applied. No-op before init
+ * and in dev (where the runtime is inert).
+ */
+export function configure(options: Partial<PrefetchOptions>): void {
+  if (import.meta.env.SSR || import.meta.env.DEV || !inited) {
+    return;
+  }
+  configureCache({
+    staleTimeMs: options.staleTimeMs,
+    maxCacheBytes: options.maxCacheBytes,
+  });
+  if (
+    options.defaultStrategy !== undefined ||
+    options.prefetchAll !== undefined
+  ) {
+    updateLinkOptions({
+      ...(options.defaultStrategy !== undefined && {
+        defaultStrategy: options.defaultStrategy,
+      }),
+      ...(options.prefetchAll !== undefined && {
+        prefetchAll: options.prefetchAll,
+      }),
+    });
+  }
+  if (options.proximity !== undefined) {
+    setProximity(options.proximity);
+  }
+  if (options.debug !== undefined) {
+    applyDebug(options.debug);
+  }
+}
+
+let debugLoaded = false;
+
+function applyDebug(
+  debug: NonNullable<PrefetchOptions["debug"]> | false
+): void {
+  // Toggling off without ever having enabled: nothing to tear down, and no
+  // reason to pull the chunk in.
+  if (debug === false && !debugLoaded) {
+    return;
+  }
+  debugLoaded = true;
+  const badge =
+    debug === true || (typeof debug === "object" && (debug.badge ?? true));
+  const overlay =
+    debug === true || (typeof debug === "object" && (debug.overlay ?? true));
+  // Dynamic import: debug code stays out of the bundle when disabled.
+  import("./debug.js")
+    .then((m) => m.setDebug({ badge, overlay }))
+    .catch(() => {
+      // debug chunk failed to load — never break the page for visuals
+    });
 }
 
 const PRIORITY_BY_NAME = {

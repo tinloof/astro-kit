@@ -37,6 +37,18 @@ export function initLinks(options: LinkOptions): void {
   initLoadStrategy();
 }
 
+/**
+ * Live-update strategy options (see configure() in index.ts). Strategy
+ * checks read `opts` at event time, so changes apply to subsequent pointer
+ * activity and scans; already-scheduled prefetches are unaffected.
+ */
+export function updateLinkOptions(partial: Partial<LinkOptions>): void {
+  if (!opts) {
+    return; // not initialized (dev / before init)
+  }
+  opts = { ...opts, ...partial };
+}
+
 /** Effective strategy for an anchor, or null when it must not be prefetched. */
 function strategyOf(el: EventTarget | Element | null): Strategy | null {
   if (!(el instanceof HTMLAnchorElement)) {

@@ -1,0 +1,34 @@
+---
+import SlowBlock from "../components/slow-block.astro";
+import Layout from "../layouts/layout.astro";
+
+// Blocking shell work — part of the streamed page HTML, so it IS cached.
+await new Promise((resolve) => setTimeout(resolve, 300));
+const shellAt = new Date().toLocaleTimeString("en-US", { hour12: false });
+---
+
+<Layout title="streaming · playground">
+  <main>
+    <p class="eyebrow">Streaming</p>
+    <h1>Server island page</h1>
+    <p>
+      The shell (with its 300ms blocking work) is part of the cached HTML — on a
+      cache hit its timestamp freezes. The island below renders via a separate
+      request <em>after</em>the swap, so it shows a fresh timestamp on every
+      visit, cached shell or not.
+    </p>
+    <div class="meta-card">
+      <span>shell rendered {shellAt}</span>
+      <span>·</span>
+      <span>+300ms blocking</span>
+    </div>
+
+    <SlowBlock server:defer>
+      <div class="meta-card" slot="fallback">
+        <span>island loading…</span>
+      </div>
+    </SlowBlock>
+
+    <a class="button" href="/">← Back to the grid</a>
+  </main>
+</Layout>

@@ -28,13 +28,16 @@ export type DebugOptions = {
 
 const FLASH_MS = 600;
 
-export function initDebug(options: DebugOptions): void {
-  if (options.badge) {
-    initBadge();
-  }
-  if (options.overlay) {
-    initProximityOverlay();
-  }
+let badgeOn = false;
+let badgeBound = false;
+let overlayOn = false;
+let overlayBound = false;
+let overlayCanvas: HTMLCanvasElement | null = null;
+
+/** Idempotent enable/disable per visual — supports runtime toggling. */
+export function setDebug(options: DebugOptions): void {
+  setBadge(options.badge);
+  setOverlay(options.overlay);
 }
 
 type Status = "hit" | "await" | "miss" | "direct";
@@ -42,10 +45,23 @@ type Status = "hit" | "await" | "miss" | "direct";
 let navStart = 0;
 let lastStatus: Status = "direct";
 
-function initBadge(): void {
+function setBadge(on: boolean): void {
+  badgeOn = on;
+  if (!on) {
+    document.getElementById("astro-prefetch-badge")?.remove();
+    return;
+  }
+  if (badgeBound) {
+    return;
+  }
+  badgeBound = true;
+
   document.addEventListener("astro:before-preparation", ((
     event: TransitionBeforePreparationEvent
   ) => {
+    if (!badgeOn) {
+      return;
+    }
     navStart = performance.now();
     const key = keyFor(event.to.href);
     const entry = key ? get(key) : undefined;
@@ -59,6 +75,9 @@ function initBadge(): void {
   }) as EventListener);
 
   document.addEventListener("astro:page-load", () => {
+    if (!badgeOn) {
+      return;
+    }
     const ms = navStart ? Math.round(performance.now() - navStart) : 0;
     renderBadge(lastStatus, ms);
     navStart = 0;
@@ -88,7 +107,20 @@ function renderBadge(status: Status, ms: number): void {
   el.textContent = `${theme.label} · ${ms}ms`;
 }
 
-function initProximityOverlay(): void {
+function setOverlay(on: boolean): void {
+  overlayOn = on;
+  if (!on) {
+    overlayCanvas?.remove();
+    overlayCanvas = null;
+    return;
+  }
+  if (overlayCanvas) {
+    return;
+  }
+  createOverlay();
+}
+
+function createOverlay(): void {
   const canvas = document.createElement("canvas");
   canvas.id = "astro-prefetch-proximity-overlay";
   // width/height 100% is required: canvas is a replaced element, so unlike
@@ -102,15 +134,19 @@ function initProximityOverlay(): void {
   }
   // Child of <html>, not <body> — the body is replaced on every swap.
   document.documentElement.appendChild(canvas);
+  overlayCanvas = canvas;
 
   // Keyed by the anchor element, not href: several links can share a URL
   // and only the rect the trajectory actually crossed should flash.
   const flashes = new WeakMap<HTMLAnchorElement, number>();
-  document.addEventListener(PROXIMITY_HIT_EVENT, ((
-    e: CustomEvent<ProximityHitDetail>
-  ) => {
-    flashes.set(e.detail.anchor, performance.now() + FLASH_MS);
-  }) as EventListener);
+  if (!overlayBound) {
+    overlayBound = true;
+    document.addEventListener(PROXIMITY_HIT_EVENT, ((
+      e: CustomEvent<ProximityHitDetail>
+    ) => {
+      flashes.set(e.detail.anchor, performance.now() + FLASH_MS);
+    }) as EventListener);
+  }
 
   // Size the bitmap to the canvas's own box, not innerWidth/innerHeight:
   // those include the scrollbar while a fixed inset:0 element does not,
@@ -130,6 +166,9 @@ function initProximityOverlay(): void {
   window.addEventListener("resize", resize);
 
   const draw = () => {
+    if (!(overlayOn && overlayCanvas === canvas)) {
+      return; // toggled off (or replaced): stop this rAF loop
+    }
     ctx.clearRect(0, 0, cssWidth, cssHeight);
     const { options, trajectory, candidates } = getProximityDebugInfo();
     const now = performance.now();

@@ -87,9 +87,23 @@ let lastEvalAt = 0;
 let evalTimer = 0;
 let observer: IntersectionObserver | null = null;
 let opts: ProximityOptions = PROXIMITY_DEFAULTS;
+let enabled = false;
 
-export function initProximity(overrides: Partial<ProximityOptions> = {}): void {
-  opts = { ...PROXIMITY_DEFAULTS, ...overrides };
+/**
+ * Enable + tune the predictor, or `false` to pause it. Safe to call again
+ * at runtime (see configure() in index.ts): observers are wired once;
+ * subsequent calls just merge options.
+ */
+export function setProximity(config: Partial<ProximityOptions> | false): void {
+  if (config === false) {
+    enabled = false;
+    return;
+  }
+  opts = { ...opts, ...config };
+  enabled = true;
+  if (observer) {
+    return;
+  }
 
   observer = new IntersectionObserver((entries) => {
     for (const entry of entries) {
@@ -215,7 +229,7 @@ function currentTrajectory(): ProximityTrajectory | null {
 }
 
 function evaluate(): void {
-  if (visible.size === 0) {
+  if (!enabled || visible.size === 0) {
     return;
   }
   const traj = currentTrajectory();

@@ -1,0 +1,15 @@
+{
+  "name": "playground",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "astro dev",
+    "build": "astro build",
+    "preview": "astro build && node ./dist/server/entry.mjs"
+  },
+  "dependencies": {
+    "@astrojs/node": "^10.1.4",
+    "@tinloof/astro-prefetch": "workspace:*",
+    "astro": "^6.0.0"
+  }
+}

@@ -1,0 +1,16 @@
+---
+// Slow async work behind server:defer: the page shell flushes first and
+// this block streams in via the island request when it resolves. A cached
+// shell therefore swaps instantly while this stays FRESH on every visit —
+// the island fetch happens after the swap, never from the prefetch cache.
+const startedAt = Date.now();
+await new Promise((resolve) => setTimeout(resolve, 1200));
+const tookMs = Date.now() - startedAt;
+const renderedAt = new Date().toLocaleTimeString("en-US", { hour12: false });
+---
+
+<div class="meta-card">
+  <span>island rendered {renderedAt}</span>
+  <span>·</span>
+  <span>{tookMs}ms server work</span>
+</div>
