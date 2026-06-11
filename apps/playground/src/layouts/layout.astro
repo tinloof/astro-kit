@@ -42,23 +42,23 @@ const { title = "@tinloof/astro-prefetch playground" } = Astro.props;
             <option value="tap">tap</option>
           </select>
         </label>
-        <label class="pf-row pf-check">
+        <label class="pf-row pf-check" data-pf-prox>
           <input type="checkbox" data-pf="proximityEnabled">
           <span>Proximity predictor</span>
         </label>
-        <label class="pf-row">
+        <label class="pf-row" data-pf-prox>
           <span>Lookahead <output data-pf-out="lookaheadMs">150</output>ms</span>
           <input type="range" min="0" max="500" step="10" data-pf="lookaheadMs">
         </label>
-        <label class="pf-row">
+        <label class="pf-row" data-pf-prox>
           <span>Radius <output data-pf-out="radiusPx">64</output>px</span>
           <input type="range" min="0" max="200" step="4" data-pf="radiusPx">
         </label>
-        <label class="pf-row">
+        <label class="pf-row" data-pf-prox>
           <span>Min speed <output data-pf-out="minSpeedPxS">80</output>px/s</span>
           <input type="range" min="0" max="500" step="10" data-pf="minSpeedPxS">
         </label>
-        <label class="pf-row">
+        <label class="pf-row" data-pf-prox>
           <span>Max speed <output data-pf-out="maxSpeedPxS">2500</output>px/s</span>
           <input type="range" min="500" max="6000" step="100" data-pf="maxSpeedPxS">
         </label>
@@ -70,7 +70,7 @@ const { title = "@tinloof/astro-prefetch playground" } = Astro.props;
           <input type="checkbox" data-pf="badge">
           <span>Debug badge</span>
         </label>
-        <label class="pf-row pf-check">
+        <label class="pf-row pf-check" data-pf-prox>
           <input type="checkbox" data-pf="overlay">
           <span>Debug overlay</span>
         </label>
@@ -128,18 +128,23 @@ const { title = "@tinloof/astro-prefetch playground" } = Astro.props;
       }
 
       function apply(state: PanelState): void {
+        // The predictor and its overlay are proximity-mode tooling — any
+        // other strategy turns both off (stored values survive switching
+        // back).
+        const isProx = state.defaultStrategy === "proximity";
         configure({
           defaultStrategy: state.defaultStrategy,
           staleTimeMs: state.staleTimeMs,
-          proximity: state.proximityEnabled
-            ? {
-                lookaheadMs: state.lookaheadMs,
-                radiusPx: state.radiusPx,
-                minSpeedPxS: state.minSpeedPxS,
-                maxSpeedPxS: state.maxSpeedPxS,
-              }
-            : false,
-          debug: { badge: state.badge, overlay: state.overlay },
+          proximity:
+            isProx && state.proximityEnabled
+              ? {
+                  lookaheadMs: state.lookaheadMs,
+                  radiusPx: state.radiusPx,
+                  minSpeedPxS: state.minSpeedPxS,
+                  maxSpeedPxS: state.maxSpeedPxS,
+                }
+              : false,
+          debug: { badge: state.badge, overlay: isProx && state.overlay },
         });
       }
 
@@ -159,6 +164,14 @@ const { title = "@tinloof/astro-prefetch playground" } = Astro.props;
           const key = out.dataset.pfOut as keyof PanelState;
           const value = state[key] as number;
           out.textContent = String(key === "staleTimeMs" ? value / 1000 : value);
+        }
+        // Disable (not hide) proximity-only controls outside proximity mode.
+        const isProx = state.defaultStrategy === "proximity";
+        for (const row of document.querySelectorAll<HTMLElement>("[data-pf-prox]")) {
+          row.toggleAttribute("data-disabled", !isProx);
+          for (const input of row.querySelectorAll("input")) {
+            input.disabled = !isProx;
+          }
         }
       }
 
@@ -419,6 +432,11 @@ const { title = "@tinloof/astro-prefetch playground" } = Astro.props;
 
   .pf-check input {
     accent-color: var(--primary);
+  }
+
+  .pf-row[data-disabled] {
+    opacity: 0.45;
+    pointer-events: none;
   }
 
   .pf-row select {
