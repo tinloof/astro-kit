@@ -47,7 +47,7 @@ Before you begin, ensure you have the following installed:
 
 ### [Prefetch](./packages/prefetch)
 
-Next.js-style prefetching for the `ClientRouter`: in-memory page cache the router swaps from, with a cursor-trajectory ("proximity") predictor that starts requests before hover fires. Try it in [`apps/playground`](./apps/playground) (`pnpm preview`).
+Next.js-style prefetching for the `ClientRouter`: in-memory page cache the router swaps from, with a cursor-trajectory ("proximity") predictor that starts requests before hover fires. Try the [live playground](https://astro-prefetch-playground.tinloof.workers.dev/) or run it locally from [`apps/playground`](./apps/playground) (`pnpm preview`).
 
 ### [iOS Back Navigation Fix](./packages/ios-backnav-fix)
 

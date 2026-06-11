@@ -2,6 +2,8 @@
 
 Next.js-style prefetching for Astro's `<ClientRouter />`: an in-memory page cache the router swaps from, with a cursor-trajectory ("proximity") predictor that starts the request before hover even fires.
 
+**[Live playground](https://astro-prefetch-playground.tinloof.workers.dev/)** — debug overlay on, every option tunable from the control panel.
+
 Astro's built-in prefetch only emits browser hints (`<link rel="prefetch">`, speculation rules) whose responses JavaScript can't read back — navigation still refetches. This integration owns the whole pipeline instead:
 
 - **Cache** — entry state machine (`pending → fulfilled | rejected`), per-entry TTL, byte-budget LRU.
