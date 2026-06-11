@@ -154,7 +154,10 @@ function initHoverStrategy(): void {
     return strategy !== null && strategy !== "tap";
   };
 
-  document.body.addEventListener(
+  // On document, NOT document.body: the body element is replaced on every
+  // view-transition swap, which would orphan these listeners after the
+  // first navigation. Focus events bubble to the document.
+  document.addEventListener(
     "focusin",
     (e) => {
       const anchor = (e.target as Element | null)?.closest("a");
@@ -164,9 +167,7 @@ function initHoverStrategy(): void {
     },
     { passive: true }
   );
-  document.body.addEventListener("focusout", handleHoverOut, {
-    passive: true,
-  });
+  document.addEventListener("focusout", handleHoverOut, { passive: true });
 
   const scan = () => {
     for (const anchor of document.getElementsByTagName("a")) {
