@@ -1,6 +1,6 @@
 {
   "name": "@tinloof/astro-prefetch",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Next.js-style prefetching for Astro's ClientRouter: in-memory cache, cursor-trajectory (proximity) prediction, and instant navigations.",
   "license": "MIT",
   "author": "Tinloof (https://tinloof.com)",

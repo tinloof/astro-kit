@@ -1,5 +1,12 @@
 # @tinloof/astro-prefetch
 
+## 0.1.1
+
+### Patch Changes
+
+- 3f86e41: Set `publishConfig.access` to `"public"` so scoped publishes never default to restricted — both manual `npm publish` and the changesets CI release now go out public, and new `@tinloof/*` packages copying this manifest inherit the safe default.
+- 244e2aa: Widen the astro peer range to `^5.0.0 || ^6.0.0` — the loader-override contract (`astro:before-preparation`, writable `event.loader`, defaultLoader semantics, `preloadStyleLinks`) is verified identical between astro 5.18 and 6.4, and a full build + serve of the playground against astro 5.18.2 passes.
+
 ## 0.1.0
 
 ### Minor Changes
