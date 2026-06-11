@@ -92,19 +92,25 @@ function renderBadge(status: Status, ms: number): void {
     el.id = "astro-prefetch-badge";
     document.body.appendChild(el);
   }
+  // Neutral chip with a colored status dot.
   const theme = {
-    hit: { bg: "#dcfce7", fg: "#166534", label: "● CACHE HIT" },
-    await: { bg: "#dbeafe", fg: "#1e40af", label: "◐ AWAITED PREFETCH" },
-    miss: { bg: "#fef3c7", fg: "#92400e", label: "○ CACHE MISS" },
-    direct: { bg: "#e2e8f0", fg: "#334155", label: "— DIRECT" },
+    hit: { dot: "#16a34a", label: "CACHE HIT" },
+    await: { dot: "#2563eb", label: "AWAITED PREFETCH" },
+    miss: { dot: "#d97706", label: "CACHE MISS" },
+    direct: { dot: "#737373", label: "DIRECT" },
   }[status];
   el.style.cssText =
     "position:fixed;bottom:1rem;right:1rem;z-index:9999;" +
-    "padding:0.5rem 0.85rem;border-radius:999px;" +
-    "font:700 0.8rem/1 ui-monospace,SFMono-Regular,Menlo,monospace;" +
-    "box-shadow:0 6px 20px rgba(15,23,42,0.18);" +
-    `background:${theme.bg};color:${theme.fg};`;
-  el.textContent = `${theme.label} · ${ms}ms`;
+    "display:inline-flex;align-items:center;gap:0.5rem;" +
+    "padding:0.45rem 0.7rem;border:1px solid #e5e5e5;" +
+    "border-radius:0.375rem;background:#fff;color:#171717;" +
+    "font:500 12px/1 'Space Mono',ui-monospace,SFMono-Regular,Menlo,monospace;" +
+    "font-variant-numeric:tabular-nums;" +
+    "box-shadow:0 1px 2px rgba(0,0,0,0.05);";
+  el.replaceChildren();
+  const dot = document.createElement("span");
+  dot.style.cssText = `width:8px;height:8px;border-radius:999px;background:${theme.dot};`;
+  el.append(dot, `${theme.label} · ${ms}ms`);
 }
 
 function setOverlay(on: boolean): void {
@@ -201,7 +207,7 @@ function drawCandidate(
     ctx.fillStyle = `rgba(22,163,74,${0.3 * flash})`;
     ctx.fillRect(x, y, w, h);
   }
-  ctx.strokeStyle = flash > 0 ? "rgba(22,163,74,0.9)" : "rgba(79,70,229,0.25)";
+  ctx.strokeStyle = flash > 0 ? "rgba(22,163,74,0.9)" : "rgba(23,23,23,0.18)";
   ctx.lineWidth = flash > 0 ? 2 : 1;
   ctx.strokeRect(x, y, w, h);
 }
@@ -210,7 +216,7 @@ function drawTrajectory(
   ctx: CanvasRenderingContext2D,
   traj: ProximityTrajectory
 ): void {
-  const color = traj.active ? "rgba(220,38,38,0.9)" : "rgba(100,116,139,0.55)";
+  const color = traj.active ? "rgba(220,38,38,0.9)" : "rgba(115,115,115,0.55)";
   // Velocity ray: cursor to projected (lookaheadMs-ahead) point.
   ctx.strokeStyle = color;
   ctx.lineWidth = 2;
@@ -224,6 +230,6 @@ function drawTrajectory(
   ctx.arc(traj.aheadX, traj.aheadY, 4, 0, Math.PI * 2);
   ctx.fill();
   // Speed readout near the cursor.
-  ctx.font = "11px ui-monospace, SFMono-Regular, Menlo, monospace";
+  ctx.font = "11px 'Space Mono',ui-monospace,SFMono-Regular,Menlo,monospace";
   ctx.fillText(`${Math.round(traj.speed)}px/s`, traj.x + 12, traj.y - 12);
 }
