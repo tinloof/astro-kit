@@ -368,7 +368,7 @@ const { title = "@tinloof/astro-prefetch playground" } = Astro.props;
   .pf-panel {
     position: fixed;
     bottom: 1rem;
-    left: 1rem;
+    right: 1rem;
     z-index: 9999;
     width: 16.5rem;
     border: 1px solid var(--border);
@@ -466,5 +466,13 @@ const { title = "@tinloof/astro-prefetch playground" } = Astro.props;
   .pf-note code {
     font-family: var(--font-mono);
     font-size: 10px;
+  }
+
+  /* The package renders its hit/miss badge fixed bottom-right (inline
+     styles, hence !important) — same corner as the panel now. Move it to
+     the top-right so both stay visible. */
+  #astro-prefetch-badge {
+    bottom: auto !important;
+    top: 1rem !important;
   }
 </style>
