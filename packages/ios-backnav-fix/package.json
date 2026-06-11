@@ -1,6 +1,6 @@
 {
   "name": "@tinloof/astro-ios-backnav-fix",
-  "version": "0.0.0",
+  "version": "0.1.0",
   "description": "Astro integration that fixes the back button in iOS Chrome/Edge when using the ClientRouter for view transitions.",
   "license": "MIT",
   "author": "Tinloof (https://tinloof.com)",
