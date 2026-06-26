@@ -1,5 +1,11 @@
 # @tinloof/astro-prefetch
 
+## 0.1.2
+
+### Patch Changes
+
+- 687283b: Support Astro 7 by relaxing the `astro` peer dependency to `^5 || ^6 || ^7`.
+
 ## 0.1.1
 
 ### Patch Changes
